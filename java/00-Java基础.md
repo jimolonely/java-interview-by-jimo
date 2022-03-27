@@ -36,3 +36,65 @@ StringReader和StringBuffer的reverse方法。
 ## 什么是检查异常？
 
 根本定义是非`RuntimeException`的子类就是检查异常，对应运行时异常。
+
+## Number类型的 i=7和j=7, i==j吗？
+
+等于，Number类型是所有基本数字类型的抽象父类。
+
+下面代码 i和j其实是Integer对象，满足 128（不包括128）以内共用实例的条件。
+```java
+Number i = 7;
+Number j = 7;
+System.out.println(i == j);
+```
+关于这里自动装箱的源码分析，会使用 `Integer.valueOf`
+
+```java
+    public static Integer valueOf(int i) {
+        if (i >= IntegerCache.low && i <= IntegerCache.high)
+            return IntegerCache.cache[i + (-IntegerCache.low)];
+        return new Integer(i);
+    }
+```
+关于这个 `IntegerCache`源码很简单：会默认将 `-128`到`127`的Integer实例缓存到数组。
+
+这个最大值可以通过JVM参数`-XX:AutoBoxCacheMax=<size>`配置
+```java
+    private static class IntegerCache {
+        static final int low = -128;
+        static final int high;
+        static final Integer cache[];
+
+        static {
+            // high value may be configured by property
+            int h = 127;
+            String integerCacheHighPropValue =
+                sun.misc.VM.getSavedProperty("java.lang.Integer.IntegerCache.high");
+            if (integerCacheHighPropValue != null) {
+                try {
+                    int i = parseInt(integerCacheHighPropValue);
+                    i = Math.max(i, 127);
+                    // Maximum array size is Integer.MAX_VALUE
+                    h = Math.min(i, Integer.MAX_VALUE - (-low) -1);
+                } catch( NumberFormatException nfe) {
+                    // If the property cannot be parsed into an int, ignore it.
+                }
+            }
+            high = h;
+
+            cache = new Integer[(high - low) + 1];
+            int j = low;
+            for(int k = 0; k < cache.length; k++)
+                cache[k] = new Integer(j++);
+
+            // range [-128, 127] must be interned (JLS7 5.1.7)
+            assert IntegerCache.high >= 127;
+        }
+
+        private IntegerCache() {}
+    }
+```
+
+
+
+

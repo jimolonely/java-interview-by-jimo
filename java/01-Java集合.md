@@ -114,4 +114,53 @@ while (listIterator.hasPrevious()) {
 }
 ```
 
+## List有哪些实现类？实现原理是啥？
+
+![list-sub-class](./images/01-list-sub-class.png)
+
+实现原理：
+
+* ArrayList：内部是一个Object数组，注意其扩容机制，每次根据入参扩旧容量的一半或指定容量 `grow`方法
+* LinkedList：双向链表结构，维护了链头和链尾指针，同时他也是 `Queue`的实现
+* Vector：内部也是个Object数组，只是所有公共方法都加了同步操作，和ArrayList还有个区别就是其扩容是翻倍增加
+* Stack：是Vector的子类，增加了 `pop,push,peek,search`方法
+* CopyOnWriteArrayList: 是一个线程安全的 ArrayList，怎么实现线程安全的呢？
+    * 里面使用了一个 `ReentrantLock`
+    * 在 `set, add, remove`等修改方法上都加了锁
+    * 另外，每个简单的修改都是Copy了一份新数据，所以内存开销是很大的，这么干是为了避免并发修改异常
+
+## Deque和Queue有什么区别？
+
+`Deque`是 `Double Ended Queue`的缩写，就是双端队列。
+
+![deque-sub-class](./images/01-deque-sub-class.png)
+
+## Hashtable和HashMap有什么区别？
+
+建议读一下2个类的源码实现，
+
+`Hashtable`源码很简单，就是一个 `Entry`数组，每个 `Entry`后面跟着hash值一样的链表结构。
+所有对外方法都用同步包裹，在add时会判断是否需要 `rehash`, `rehash`也很简单，将数组扩容（翻倍），然后重新hash数组索引位置到新数组。
+
+本来JDK1.8以前，HashMap也是很简单的数组+链表结构，自从加了红黑树转换，代码就复杂了一些。
+但抛开红黑树那块，基本逻辑还是不变的，但要注意几个细节的区别：
+
+1. HashMap的大小一定是2的幂次方，为什么呢？
+  * 因为新的hash方法，里面定位将这个元素放在数组哪个桶里时，不再是简单的通过取模运算： `hash % n`,
+    而是使用位运算： `(n-1) & hash`, 你说这有什么好处？因为快呀，位运算比取模快多了。 
+    为了保证这个计算结果和取模一样，n必须是2的幂次方。
+2. `hashcode`不是简单取对象的`hashcode`，而是做了移位运算： `(h = key.hashCode()) ^ (h >>> 16)`,这又是为什么呢？
+  * 当然是为了减少哈希冲突，举个例子吧：
+  * key的hash值为 10101010-10101010-01011100-00000000,如果最低8位为0，我们的map长度n为16，
+    那么`(n-1) & hash`算出来的是0，在很多时候，hash表的长度都在低16位，这个计算就相当于完全相信对象的hashcode。
+    显然，JDK开发人员觉得这个可以优化。
+3. 如果要同步map，使用 `ConcurrentHashMap`.
+
+## ConcurrentHashMap如何实现并发安全？底层实现原理
+
+1. 所有属性都设为了 `volatile`
+2. 主要是使用Unsafe的原生方法来保证同步，比如：获取节点tabAt是调用的Unsafe的 `getObjectVolatile`
+   替换值的 casTabAt,采用Unsafe的 `compareAndSwapObject`. 
+3. putVal时，还是会用 `synchronized`锁住需要修改的节点 `Node`
+
 

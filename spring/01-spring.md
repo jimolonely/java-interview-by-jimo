@@ -100,6 +100,30 @@ https://cloud.tencent.com/developer/article/1697221
 
 当使用注解时，是通过AOP动态给方法增加事务。
 
+## Spring的启动流程？
+
+参考：https://blog.csdn.net/a745233700/article/details/113761271
+
+从 `ApplicationContext`的子类 `AnnotationConfigApplicationContext`的构造下手：
+
+```java
+	public AnnotationConfigApplicationContext(Class<?>... componentClasses) {
+		this();
+		register(componentClasses);
+		refresh();
+	}
+```
+
+分为3步：
+
+1. 初始化
+   * 创建默认的 `DefaultListableBeanFactory`
+   * 还有一堆环境相关的类
+2. 注册
+   * 通过 `BeanDefinitionRegistry`来注册
+3. 刷新
+   * 是调用 `AbstractApplicationContext`的方法
+   * 总共有 12 步，包括注册内置组件、事件监听、后置处理等，最后实例初始完发布刷新事件
 
 
 

@@ -136,6 +136,10 @@ static class B {
 
 TODO
 
+https://zhuanlan.zhihu.com/p/91408261
+
+
+
 ## StampedLock用在什么场景？
 
 `StampedLock`是`JDK1.8`实现的读写锁升级版，来减少写的时候也要等读锁释放的问题。也就是读的时候可以先不加锁，采用乐观读，然后判断下有没有线程在写，如果有，就升级为读锁，否则就执行走了。 文章翻译了注释中的代码：
@@ -280,5 +284,50 @@ https://tech.meituan.com/2019/12/05/aqs-theory-and-apply.html
 AQS
 
 
+## 线程池拒绝策略有哪些？你用的什么？
 
+有4种：
+
+* AbortPolicy
+* DiscardOldestPolicy
+* DiscardPolicy
+* CallerRunPolicy
+
+默认是拒绝策略。
+
+## 线上服务器最多能创建多少个线程？这个问题没这么简单
+
+这个问题要考虑2个因素： JVM参数 & 系统限制.
+
+1. JVM参数
+    * 我们知道线程需要存储栈帧，由 `-Xss`控制，默认是1MB
+    * 还要知道JVM是采用操作系统1比1的线程模型，所以会受限于操作系统内存，除去堆和元空间外的内存
+
+2. 操作系统限制
+    * 如下参数，最大线程数限制32768，栈大小为8k
+    * 还得考虑32位和64位系统区别
+
+```shell 
+jimo@jimo:/mnt/d/software$ cat /proc/sys/kernel/threads-max
+32768
+jimo@jimo:/mnt/d/software$ cat /proc/sys/kernel/pid_max
+32768
+jimo@jimo:/mnt/d/software$ ulimit  -a | grep stack
+stack size              (kbytes, -s) 8192
+```
+
+## tryLock了解过吗？
+
+tryLock如果获取到锁会立即返回true，否则返回false，可以配合超时的方法一起使用：
+
+```java
+ if (lock.tryLock() ||
+     lock.tryLock(timeout, unit)) {
+   ...
+ }
+```
+
+## 偏向锁、轻量级锁是什么？
+
+https://tech.meituan.com/2018/11/15/java-lock.html
 

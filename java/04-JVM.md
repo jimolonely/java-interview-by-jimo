@@ -51,3 +51,8 @@ HotSpot JVM把年轻代分为了三部分：1个Eden区和2个Survivor区（分�
 
 像Spark和Flink都有自定义的类加载器，Flink更有 `classloader.resolve-order`配置，要改成 `parent-first`才能利用双亲委派。
 
+## JVM哪个区域不会发生内存溢出？
+
+程序计数器是唯一没有规定内存溢出的区域。
+
+

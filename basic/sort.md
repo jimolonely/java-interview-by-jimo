@@ -87,6 +87,23 @@
 
 # 插入排序
 
+```java
+    static class InsertSort implements AbstractSorter {
+
+        @Override
+        public void sort(int[] a) {
+            for (int i = 1; i < a.length; i++) {
+                for (int j = i; j > 0; j--) {
+                    if (a[j - 1] > a[j]) {
+                        swap(a, j - 1, j);
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+```
 
 # 希尔排序
 

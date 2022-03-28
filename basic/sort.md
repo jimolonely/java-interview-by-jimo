@@ -67,6 +67,23 @@
 
 # 选择排序
 
+```java
+    static class SelectSort implements AbstractSorter {
+
+        @Override
+        public void sort(int[] a) {
+            for (int i = 0; i < a.length - 1; i++) {
+                int minIdx = i;
+                for (int j = i + 1; j < a.length; j++) {
+                    if (a[minIdx] > a[j]) {
+                        minIdx = j;
+                    }
+                }
+                swap(a, minIdx, i);
+            }
+        }
+    }
+```
 
 # 插入排序
 

@@ -109,8 +109,58 @@
 
 # 快速排序
 
+```java
+    static class QuickSort implements AbstractSorter {
+
+        @Override
+        public void sort(int[] a) {
+            quickSort(a, 0, a.length - 1);
+        }
+
+        private void quickSort(int[] a, int left, int right) {
+            if (left < right) {
+                int mid = move(a, left, right);
+                quickSort(a, left, mid - 1);
+                quickSort(a, mid + 1, right);
+            }
+        }
+
+        private int move(int[] a, int start, int end) {
+            // 用中间的数作为划分值，避免有序情况
+            int mid = start + (end - start) / 2;
+            swap(a, mid, start);
+            int pivot = a[start];
+            int left = start;
+            int right = end;
+            while (left < right) {
+                // 每一轮
+                // 从右边找到一个比sentinel小的
+                while (left < right && a[right] >= pivot) {
+                    right--;
+                }
+                if (left < right) {
+                    a[left] = a[right];
+                    left++;
+                }
+                // 再从左边找到一个比sentinel大的
+                while (left < right && a[left] <= pivot) {
+                    left++;
+                }
+                if (left < right) {
+                    a[right] = a[left];
+                    right--;
+                }
+            }
+            // 再给枢纽位置赋值
+            a[left] = pivot;
+            return left;
+        }
+    }
+```
 
 # 堆排序
+
+
 
 # 桶排序
 

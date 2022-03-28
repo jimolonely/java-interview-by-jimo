@@ -160,7 +160,42 @@
 
 # 堆排序
 
+```java
+    static class HeapSort implements AbstractSorter {
 
+        @Override
+        public void sort(int[] a) {
+            // 构建大顶堆
+            for (int i = a.length / 2; i >= 0; i--) {
+                heapify(a, i, a.length);
+            }
+            // 排序
+            for (int i = a.length - 1; i > 0; i--) {
+                // 顶部是第一个，移到最后去
+                swap(a, i, 0);
+                heapify(a, 0, i);
+            }
+        }
+
+        private void heapify(int[] a, int parentIdx, int len) {
+            int parentVal = a[parentIdx];
+            for (int left = parentIdx * 2 + 1; left < len; left = left * 2 + 1) {
+                // 找出左右孩子较大者
+                if (left + 1 < len && a[left] < a[left + 1]) {
+                    left++;
+                }
+                // 如果孩子比父亲大，就要交换，否则代表已经调整完毕
+                if (a[left] < parentVal) {
+                    break;
+                } else {
+                    a[parentIdx] = a[left];
+                    a[left] = parentVal;
+                    parentIdx = left;
+                }
+            }
+        }
+    }
+```
 
 # 桶排序
 
